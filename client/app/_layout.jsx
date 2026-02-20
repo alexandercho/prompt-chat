@@ -7,8 +7,9 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ presentation: 'index', title: 'Home' }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="chatbot" />
     </Stack>
   );
 }
