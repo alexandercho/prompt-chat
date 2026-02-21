@@ -5,139 +5,86 @@ import {
     Platform,
 } from 'react-native';
 import { GiftedChat, InputToolbar, Bubble, Send, Composer } from 'react-native-gifted-chat';
-import { useRouter, useNavigation, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setApiPrompt, sendMessage } from '@/util/api';
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL;
+const HUMAN_USER = { _id: 1 };
+const BOT_USER = { _id: 2, name: 'Bot' };
 
-const BOT_USER = {
-    _id: 2,
-    name: 'Bot',
-};
-
-const HUMAN_USER = {
-    _id: 1,
-};
+const isWeb = Platform.OS === 'web';
 
 export default function ChatbotScreen() {
-    const params = useLocalSearchParams();
-    const router = useRouter();
-    const { prompt } = params;
     const [messages, setMessages] = useState([]);
-    const [apiUp, setApiUp] = useState(null);
     const inputRef = useRef(null);
 
     useEffect(() => {
-        checkApiHealth()
-        setMessages([
-            {
-                _id: Date.now(),
-                text: prompt !== '' ? prompt : 'Ask me anything.',
-                createdAt: new Date(),
-                user: prompt ? HUMAN_USER : BOT_USER,
-            },
-        ]);
-    }, [prompt]);
+        const init = async () => {
+            const storedPrompt = await AsyncStorage.getItem('prompt');
+            const prompt = storedPrompt ?? '';
 
-    const checkApiHealth = () => {
-        fetch(`${API_BASE}/health`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then((res) => {
-                if (!res.ok) {
-                    setApiUp(false);
-                    return null;
-                }
-                return res.json();
-            })
-            .then((data) => {
-                if (!data) return;
-                setApiUp(data.status === 'ok');
-            })
-            .catch(() => {
-                setApiUp(false);
-            });
-    };
+            setMessages([
+                {
+                    _id: Date.now(),
+                    text: prompt !== '' ? prompt : 'Ask me anything.',
+                    createdAt: new Date(),
+                    user: prompt ? HUMAN_USER : BOT_USER,
+                },
+            ]);
 
-    const onSend = useCallback(
-        async (newMessages = []) => {
-            setMessages((prev) => GiftedChat.append(prev, newMessages));
-
-            const userMessage = newMessages[0];
-
-            if (!apiUp) {
-                appendDemoMessage();
-                return;
+            if (prompt) {
+                await setApiPrompt(prompt);
             }
+        };
 
-            try {
-                const res = await fetch(`${API_BASE}/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userMessage.text }),
-                });
+        init();
+    }, []);
 
-                if (!res.ok) throw new Error();
+    const onSend = useCallback(async (newMessages = []) => {
+        setMessages(prev => GiftedChat.append(prev, newMessages));
+        const userMessage = newMessages[0];
+        const data = await sendMessage(userMessage);
 
-                const data = await res.json();
-
-                setMessages((prev) =>
-                    GiftedChat.append(prev, [
-                        {
-                            _id: Date.now() + 1,
-                            text: data.reply,
-                            createdAt: new Date(),
-                            user: BOT_USER,
-                        },
-                    ])
-                );
-            } catch {
-                appendDemoMessage();
-            }
-        },
-        [apiUp]
-    );
-
-    const appendDemoMessage = () => {
-        setMessages((prev) =>
+        setMessages(prev =>
             GiftedChat.append(prev, [
                 {
                     _id: Date.now() + 1,
-                    text:
-                        'This is a demo project.\n\nTry the full version or contact me here:\nhttps://alexandercho.github.io/contact',
+                    text: data.reply,
                     createdAt: new Date(),
                     user: BOT_USER,
                 },
             ])
         );
-    };
+    }, []);
 
     return (
-        <LinearGradient colors={['#020617', '#0F172A']} style={{ flex: 1 }}>
-            <SafeAreaView style={{ flex: 1 }}>
+        <LinearGradient
+            colors={['#020617', '#0F172A']}
+            style={styles.flex1}
+        >
+            <SafeAreaView style={styles.flex1}>
                 <View style={styles.chatContainer}>
                     <GiftedChat
                         messages={messages}
-                        onSend={(msgs) => onSend(msgs)}
+                        onSend={onSend}
                         user={HUMAN_USER}
-                        placeholder='Type a message...'
+                        placeholder="Type a message..."
                         scrollToBottom
                         renderInputToolbar={renderInputToolbar}
                         renderBubble={renderBubble}
                         renderSend={renderSend}
                         textInputStyle={styles.textInput}
                         messagesContainerStyle={styles.messages}
-                        renderComposer={(props) => (
+                        renderComposer={props => (
                             <Composer
                                 {...props}
                                 textInputProps={{
                                     ...props.textInputProps,
                                     ref: inputRef,
-                                    blurOnSubmit: Platform.OS === 'web',
-                                    onSubmitEditing: Platform.OS === 'web'
+                                    blurOnSubmit: isWeb,
+                                    onSubmitEditing: isWeb
                                         ? () => {
                                             if (props.text && props.onSend) {
                                                 props.onSend({ text: props.text.trim() }, true);
@@ -158,8 +105,12 @@ export default function ChatbotScreen() {
 const renderInputToolbar = props => (
     <InputToolbar
         {...props}
-        containerStyle={styles.inputToolbar}
-        primaryStyle={{ alignItems: 'center' }}
+        containerStyle={[
+            styles.inputToolbar,
+            styles.surfaceDark,
+            styles.borderTop,
+        ]}
+        primaryStyle={styles.inputPrimary}
     />
 );
 
@@ -171,8 +122,8 @@ const renderBubble = props => (
             left: styles.leftBubbleText,
         }}
         wrapperStyle={{
-            right: styles.rightBubble,
-            left: styles.leftBubble,
+            right: [styles.bubbleBase, styles.surfacePrimary],
+            left: [styles.bubbleBase, styles.surfaceDark, styles.borderDefault],
         }}
     />
 );
@@ -180,81 +131,82 @@ const renderBubble = props => (
 const renderSend = props => (
     <Send {...props} containerStyle={styles.sendContainer}>
         <Ionicons
-            name='send'
+            name="send"
             size={20}
-            color='#FFFFFF'
-            style={styles.sendIcon}
+            color="#FFFFFF"
+            style={[
+                styles.sendIconBase,
+                styles.surfacePrimary,
+            ]}
         />
     </Send>
 );
+
 const styles = StyleSheet.create({
+    flex1: {
+        flex: 1,
+    },
     chatContainer: {
         flex: 1,
         alignSelf: 'center',
         width: '100%',
-        maxWidth: 900, // limits chat width on large screens
-        paddingHorizontal: Platform.OS === 'web' ? 24 : 0,
+        maxWidth: 900,
+        paddingHorizontal: isWeb ? 24 : 0,
     },
-
     messages: {
         paddingTop: 12,
-        paddingHorizontal: Platform.OS === 'web' ? 12 : 0,
+        paddingHorizontal: isWeb ? 12 : 0,
     },
-
-    inputToolbar: {
-        backgroundColor: '#020617',
-        borderTopWidth: 1,
-        borderTopColor: '#1E293B',
-        paddingHorizontal: Platform.OS === 'web' ? 16 : 12,
-        paddingVertical: Platform.OS === 'web' ? 8 : 6,
+    inputPrimary: {
+        alignItems: 'center',
     },
-
-    textInput: {
-        color: '#E5E7EB',
-        fontSize: Platform.OS === 'web' ? 18 : 16,
-        lineHeight: Platform.OS === 'web' ? 22 : 20,
-    },
-
-    rightBubble: {
-        backgroundColor: '#6366F1',
-        borderRadius: 20,
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        marginBottom: 6,
-    },
-
-    leftBubble: {
-        backgroundColor: '#020617',
-        borderRadius: 20,
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderWidth: 1,
-        borderColor: '#1E293B',
-        marginBottom: 6,
-    },
-
-    rightBubbleText: {
-        color: '#FFFFFF',
-        fontSize: Platform.OS === 'web' ? 16 : 15,
-        lineHeight: Platform.OS === 'web' ? 24 : 22,
-    },
-
-    leftBubbleText: {
-        color: '#E5E7EB',
-        fontSize: Platform.OS === 'web' ? 16 : 15,
-        lineHeight: Platform.OS === 'web' ? 24 : 22,
-    },
-
     sendContainer: {
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 8,
     },
-
-    sendIcon: {
+    surfaceDark: {
+        backgroundColor: '#020617',
+    },
+    surfacePrimary: {
         backgroundColor: '#6366F1',
+    },
+    borderDefault: {
+        borderWidth: 1,
+        borderColor: '#1E293B',
+    },
+    borderTop: {
+        borderTopWidth: 1,
+        borderTopColor: '#1E293B',
+    },
+    textInput: {
+        color: '#E5E7EB',
+        fontSize: isWeb ? 18 : 16,
+        lineHeight: isWeb ? 22 : 20,
+    },
+    rightBubbleText: {
+        color: '#FFFFFF',
+        fontSize: isWeb ? 16 : 15,
+        lineHeight: isWeb ? 24 : 22,
+    },
+    leftBubbleText: {
+        color: '#E5E7EB',
+        fontSize: isWeb ? 16 : 15,
+        lineHeight: isWeb ? 24 : 22,
+    },
+    bubbleBase: {
+        borderRadius: 20,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        marginBottom: 6,
+    },
+    inputToolbar: {
+        paddingHorizontal: isWeb ? 16 : 12,
+        paddingVertical: isWeb ? 8 : 6,
+    },
+    sendIconBase: {
         borderRadius: 999,
-        padding: Platform.OS === 'web' ? 12 : 10,
+        padding: isWeb ? 12 : 10,
         overflow: 'hidden',
     },
 });

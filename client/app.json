@@ -22,6 +22,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "name": "Prompt Chat",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },

@@ -16,10 +16,13 @@ app.get('/', (req, res) => {
 
 app.post('/chat', (req, res) => {
   res.status(200).json({
-    reply: 'Hello World'
+    reply: `You said "${req?.body?.text}"`
   });
 });
-
+app.post('/set-prompt', (req, res) => {
+  console.log('TODO: Set prompt logic here')
+  res.status(200).json({});
+});
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
