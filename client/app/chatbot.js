@@ -13,7 +13,6 @@ import { setApiPrompt, sendMessage } from '@/util/api';
 
 const HUMAN_USER = { _id: 1 };
 const BOT_USER = { _id: 2, name: 'Bot' };
-
 const isWeb = Platform.OS === 'web';
 
 export default function ChatbotScreen() {
@@ -65,37 +64,39 @@ export default function ChatbotScreen() {
             style={styles.flex1}
         >
             <SafeAreaView style={styles.flex1}>
-                <View style={styles.chatContainer}>
-                    <GiftedChat
-                        messages={messages}
-                        onSend={onSend}
-                        user={HUMAN_USER}
-                        placeholder="Type a message..."
-                        scrollToBottom
-                        renderInputToolbar={renderInputToolbar}
-                        renderBubble={renderBubble}
-                        renderSend={renderSend}
-                        textInputStyle={styles.textInput}
-                        messagesContainerStyle={styles.messages}
-                        renderComposer={props => (
-                            <Composer
-                                {...props}
-                                textInputProps={{
-                                    ...props.textInputProps,
-                                    ref: inputRef,
-                                    blurOnSubmit: isWeb,
-                                    onSubmitEditing: isWeb
-                                        ? () => {
-                                            if (props.text && props.onSend) {
-                                                props.onSend({ text: props.text.trim() }, true);
-                                                setTimeout(() => inputRef.current?.focus(), 50);
+                <View style={styles.pageContainer}>
+                    <View style={styles.chatCard}>
+                        <GiftedChat
+                            messages={messages}
+                            onSend={onSend}
+                            user={HUMAN_USER}
+                            placeholder="Type a message..."
+                            scrollToBottom
+                            renderInputToolbar={renderInputToolbar}
+                            renderBubble={renderBubble}
+                            renderSend={renderSend}
+                            textInputStyle={styles.textInput}
+                            messagesContainerStyle={[styles.messages, isWeb && styles.hideScrollbar]}
+                            renderComposer={props => (
+                                <Composer
+                                    {...props}
+                                    textInputProps={{
+                                        ...props.textInputProps,
+                                        ref: inputRef,
+                                        blurOnSubmit: isWeb,
+                                        onSubmitEditing: isWeb
+                                            ? () => {
+                                                if (props.text && props.onSend) {
+                                                    props.onSend({ text: props.text.trim() }, true);
+                                                    setTimeout(() => inputRef.current?.focus(), 50);
+                                                }
                                             }
-                                        }
-                                        : undefined,
-                                }}
-                            />
-                        )}
-                    />
+                                            : undefined,
+                                    }}
+                                />
+                            )}
+                        />
+                    </View>
                 </View>
             </SafeAreaView>
         </LinearGradient>
@@ -143,28 +144,45 @@ const renderSend = props => (
 );
 
 const styles = StyleSheet.create({
+    /* Layout */
     flex1: {
         flex: 1,
     },
-    chatContainer: {
+    pageContainer: {
         flex: 1,
-        alignSelf: 'center',
+        alignItems: 'center',
+        paddingHorizontal: isWeb ? 24 : 0,
+        paddingTop: isWeb ? 32 : 0,
+        paddingBottom: isWeb ? 32 : 0,
+    },
+    chatCard: {
+        flex: 1,
         width: '100%',
         maxWidth: 900,
-        paddingHorizontal: isWeb ? 24 : 0,
+        backgroundColor: '#0B1220',
+        borderRadius: isWeb ? 24 : 0,
+        overflow: 'hidden',
+        borderWidth: isWeb ? 1 : 0,
+        borderColor: '#1E293B',
     },
+
+    /* Message List */
     messages: {
-        paddingTop: 12,
-        paddingHorizontal: isWeb ? 12 : 0,
+        paddingTop: 16,
+        paddingHorizontal: 0,
     },
-    inputPrimary: {
-        alignItems: 'center',
+    hideScrollbar: {
+        // Firefox
+        scrollbarWidth: 'none',
+        // IE 10+
+        msOverflowStyle: 'none',
+        // Webkit (Chrome, Safari, Edge)
+        '::-webkit-scrollbar': {
+            display: 'none',
+        },
     },
-    sendContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-    },
+
+    /* Surfaces */
     surfaceDark: {
         backgroundColor: '#020617',
     },
@@ -179,34 +197,51 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#1E293B',
     },
+
+    /* Typography */
     textInput: {
         color: '#E5E7EB',
-        fontSize: isWeb ? 18 : 16,
-        lineHeight: isWeb ? 22 : 20,
+        fontSize: isWeb ? 17 : 16,
+        lineHeight: isWeb ? 24 : 22,
+        paddingTop: 10,
     },
     rightBubbleText: {
         color: '#FFFFFF',
         fontSize: isWeb ? 16 : 15,
-        lineHeight: isWeb ? 24 : 22,
+        lineHeight: 22,
     },
     leftBubbleText: {
         color: '#E5E7EB',
         fontSize: isWeb ? 16 : 15,
-        lineHeight: isWeb ? 24 : 22,
+        lineHeight: 22,
     },
+
+    /* Bubbles */
     bubbleBase: {
-        borderRadius: 20,
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        marginBottom: 6,
+        borderRadius: 18,
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        marginBottom: 10,
     },
+
+    /* Input Toolbar */
     inputToolbar: {
-        paddingHorizontal: isWeb ? 16 : 12,
-        paddingVertical: isWeb ? 8 : 6,
+        paddingHorizontal: isWeb ? 20 : 12,
+        paddingVertical: isWeb ? 14 : 8,
+    },
+    inputPrimary: {
+        alignItems: 'center',
+    },
+
+    /* Send Button */
+    sendContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 6,
     },
     sendIconBase: {
         borderRadius: 999,
-        padding: isWeb ? 12 : 10,
+        padding: isWeb ? 14 : 11,
         overflow: 'hidden',
     },
 });

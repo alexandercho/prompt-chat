@@ -1,16 +1,26 @@
+import { Alert, Platform } from "react-native";
+
 const API_BASE = process.env.EXPO_PUBLIC_API_URL;
 const headers = { 'Content-Type': 'application/json' };
 
 export const setApiPrompt = async (prompt) => {
-    const res = await fetch(`${API_BASE}/set-prompt`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ prompt }),
-    });
-
-    if (!res.ok) {
-        throw new Error('Failed to set prompt');
+    try {
+        const res = await fetch(`${API_BASE}/set-prompt`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ prompt }),
+        });
+        if (!res.ok) {
+            throw new Error('Failed to set prompt');
+        }
+    } catch {
+        if (Platform.OS === 'web') {
+            window.alert('You are running in offline mode.')
+        } else {
+            Alert.alert('You are running in offline mode.')
+        }
     }
+
 };
 
 export const sendMessage = async ({ text }) => {
