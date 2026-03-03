@@ -8,8 +8,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "deploy": "gh-pages -d dist",
-    "predeploy": "expo export -p web"
+    "predeploy": "expo export -p web && echo '' > dist/.gitignore && touch dist/.nojekyll",
+    "deploy": "gh-pages -d dist --dotfiles --add"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
