@@ -22,8 +22,14 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "name": "Prompt Chat",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "build": {
+        "experimental": {
+          "baseUrl": "/prompt-chat/"
+        }
+      }
     },
     "plugins": [
       "expo-router",
@@ -42,7 +48,8 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": true,
+      "baseUrl": "/prompt-chat/"
     }
   }
 }
