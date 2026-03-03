@@ -1,0 +1,61 @@
+name: CI & Deploy
+
+on:
+  push:
+    branches:
+      - '**'  # Run lint on all branch pushes
+
+jobs:
+  lint:
+    name: Lint code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'yarn'
+          cache-dependency-path: 'client/yarn.lock'  # Cache yarn dependencies from client folder
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: yarn install --frozen-lockfile
+
+      - name: Run ESLint
+        working-directory: ./client
+        run: yarn lint
+
+  deploy:
+    name: Deploy site
+    runs-on: ubuntu-latest
+    needs: lint
+    if: github.ref == 'refs/heads/main'  # Only deploy on main branch
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'yarn'
+          cache-dependency-path: 'client/yarn.lock'
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: yarn install --frozen-lockfile
+
+      - name: Build site
+        working-directory: ./client
+        run: yarn predeploy
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./client/dist
