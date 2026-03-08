@@ -123,8 +123,17 @@ const renderBubble = props => (
             left: styles.leftBubbleText,
         }}
         wrapperStyle={{
-            right: [styles.bubbleBase, styles.surfacePrimary],
-            left: [styles.bubbleBase, styles.surfaceDark, styles.borderDefault],
+            right: [
+                styles.bubbleBase,
+                styles.surfacePrimary,
+                styles.sendBubble
+            ],
+            left: [
+                styles.bubbleBase,
+                styles.surfaceDark,
+                styles.borderDefault,
+                styles.replyBubble
+            ],
         }}
     />
 );
@@ -222,6 +231,17 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 14,
         marginBottom: 10,
+        flexShrink: 1,
+        flexWrap: 'wrap'
+    },
+    sendBubble: {
+        alignSelf: 'flex-end',
+        marginRight: 10
+    },
+    replyBubble: {
+        alignSelf: 'flex-start',
+        marginLeft: 10,
+        maxWidth: '15%'
     },
 
     /* Input Toolbar */
