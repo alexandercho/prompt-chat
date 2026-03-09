@@ -1,13 +1,14 @@
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useAuthRequest } from 'expo-auth-session/providers/google';
 import { useEffect } from 'react';
-
+const webClientId = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
+const expoClientId = process.env.EXPO_PUBLIC_EXPO_CLIENT_ID;
 maybeCompleteAuthSession();
 
 export function useGoogleAuth(onSuccess) {
     const [request, response, promptAsync] = useAuthRequest({
-        webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-        expoClientId: process.env.EXPO_PUBLIC_EXPO_CLIENT_ID,
+        webClientId,
+        expoClientId,
         responseType: 'id_token',
         scopes: ['openid', 'profile', 'email']
     });

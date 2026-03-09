@@ -9,26 +9,26 @@ export default function RootLayout() {
             screenOptions={{
                 // Default options for all screens
                 headerStyle: {
-                    backgroundColor: '#020617',
+                    backgroundColor: '#020617'
                 },
                 headerShadowVisible: false,
                 headerTitleStyle: {
                     color: '#F8FAFC',
                     fontSize: 18,
-                    fontWeight: '600',
+                    fontWeight: '600'
                 },
                 headerTintColor: '#6366F1',
                 headerBackgroundContainerStyle: {
                     borderBottomWidth: 1,
-                    borderBottomColor: '#1E293B',
-                },
+                    borderBottomColor: '#1E293B'
+                }
             }}
         >
             {/* Index screen: no header */}
             <Stack.Screen
                 name="index"
                 options={{
-                    headerShown: false,
+                    headerShown: false
                 }}
             />
 
@@ -44,7 +44,7 @@ export default function RootLayout() {
                         >
                             <Ionicons name="arrow-back-outline" size={24} color="#6366F1" />
                         </TouchableOpacity>
-                    ),
+                    )
                 }}
             />
         </Stack>
