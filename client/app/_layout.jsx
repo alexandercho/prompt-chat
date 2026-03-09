@@ -17,7 +17,7 @@ function AuthGate() {
     useEffect(() => {
         if (!ready || loading) return;
 
-        router.replace(user ? '/(signed-in)' : '/(signed-out)/login');
+        router.replace(user ? '/(signed-in)' : '/(signed-out)');
     }, [ready, user, loading, router]);
 
     if (!ready || loading) {
