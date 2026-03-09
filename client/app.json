@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "client",
-    "slug": "client",
+    "name": "prompt-chat",
+    "slug": "prompt-chat",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "client",
+    "scheme": "prompt-chat",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -44,12 +44,21 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true,
       "baseUrl": "/prompt-chat/"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "806a6691-463c-497c-be93-714b062ac41a"
+      }
+    },
+    "owner": "alex-personal-projects"
   }
 }
