@@ -99,7 +99,9 @@ export default function ChatbotScreen() {
                         />
                     </View>
                 </View>
-                <SignOutButton />
+                <View style={styles.signoutContainer}>
+                    <SignOutButton />
+                </View>
             </SafeAreaView>
         </LinearGradient>
     );
@@ -265,5 +267,9 @@ const styles = StyleSheet.create({
         borderRadius: 999,
         padding: isWeb ? 14 : 11,
         overflow: 'hidden'
+    },
+    signoutContainer: {
+        width: '50%',
+        alignSelf: 'center'
     }
 });

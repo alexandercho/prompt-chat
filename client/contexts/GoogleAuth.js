@@ -1,8 +1,10 @@
 import { maybeCompleteAuthSession } from 'expo-web-browser';
 import { useAuthRequest } from 'expo-auth-session/providers/google';
 import { useEffect } from 'react';
+
 const webClientId = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
 const expoClientId = process.env.EXPO_PUBLIC_EXPO_CLIENT_ID;
+const redirectUri = process.env.EXPO_PUBLIC_WEB_URL
 maybeCompleteAuthSession();
 
 export function useGoogleAuth(onSuccess) {
@@ -10,7 +12,8 @@ export function useGoogleAuth(onSuccess) {
         webClientId,
         expoClientId,
         responseType: 'id_token',
-        scopes: ['openid', 'profile', 'email']
+        scopes: ['openid', 'profile', 'email'],
+        redirectUri
     });
 
     useEffect(() => {

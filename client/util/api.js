@@ -87,5 +87,6 @@ export const authGoogle = async idToken => {
         } else {
             Alert.alert(errorMessage)
         }
+        return {};
     }
 };
