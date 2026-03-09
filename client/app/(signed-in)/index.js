@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SignOutButton from '@/components/SignOutButton';
 
 export default function PromptScreen() {
     const [prompt, setPrompt] = useState('');
@@ -26,9 +27,7 @@ export default function PromptScreen() {
     const handleGoToChat = useCallback(() =>
         AsyncStorage
             .setItem('prompt', prompt)
-            .then(() => router.push('/chatbot')),
-        [prompt, router]
-    );
+            .then(() => router.push('/chatbot')), [prompt, router]);
 
     return (
         <LinearGradient colors={['#020617', '#0F172A']} style={{ flex: 1 }}>
@@ -57,6 +56,7 @@ export default function PromptScreen() {
                             ]}>
                             <Text style={styles.buttonText}>Start chat</Text>
                         </Pressable>
+                        <SignOutButton />
                     </View>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     card: {
         width: '100%',
@@ -82,27 +82,19 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.35,
         shadowRadius: 20,
-        shadowOffset: { width: 0, height: 10 },
-    },
-    eyebrow: {
-        color: '#818CF8',
-        fontSize: 12,
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: 6,
+        shadowOffset: { width: 0, height: 10 }
     },
     title: {
         fontSize: 28,
         fontWeight: '700',
         color: '#F8FAFC',
-        marginBottom: 8,
+        marginBottom: 8
     },
     subtitle: {
         fontSize: 15,
         lineHeight: 22,
         color: '#CBD5F5',
-        marginBottom: 20,
+        marginBottom: 20
     },
     input: {
         minHeight: 160,
@@ -114,24 +106,22 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         borderWidth: 1,
         borderColor: '#1E293B',
-        marginBottom: 24,
+        marginBottom: 24
     },
     button: {
         backgroundColor: '#6366F1',
         paddingVertical: 16,
         borderRadius: 16,
         alignItems: 'center',
+        marginVertical: 16
     },
     buttonPressed: {
         transform: [{ scale: 0.98 }],
-        opacity: 0.9,
-    },
-    buttonDisabled: {
-        opacity: 0.4,
+        opacity: 0.9
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
-        fontWeight: '600',
-    },
+        fontWeight: '600'
+    }
 });
