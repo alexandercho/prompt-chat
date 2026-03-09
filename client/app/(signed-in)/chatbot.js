@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setApiPrompt, sendMessage } from '@/util/api';
+import SignOutButton from '@/components/SignOutButton';
 
 const HUMAN_USER = { _id: 1 };
 const BOT_USER = { _id: 2, name: 'Bot' };
@@ -98,6 +99,7 @@ export default function ChatbotScreen() {
                         />
                     </View>
                 </View>
+                <SignOutButton />
             </SafeAreaView>
         </LinearGradient>
     );

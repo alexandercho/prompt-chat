@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SignOutButton from '@/components/SignOutButton';
 
 export default function PromptScreen() {
     const [prompt, setPrompt] = useState('');
@@ -55,6 +56,7 @@ export default function PromptScreen() {
                             ]}>
                             <Text style={styles.buttonText}>Start chat</Text>
                         </Pressable>
+                        <SignOutButton />
                     </View>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -110,7 +112,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#6366F1',
         paddingVertical: 16,
         borderRadius: 16,
-        alignItems: 'center'
+        alignItems: 'center',
+        marginVertical: 16
     },
     buttonPressed: {
         transform: [{ scale: 0.98 }],
