@@ -27,7 +27,7 @@ jobs:
 
       - name: Run ESLint
         working-directory: ./client
-        run: yarn lint
+        run: yarn lint .
 
   deploy:
     name: Deploy site

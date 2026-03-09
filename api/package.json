@@ -10,6 +10,7 @@
   "dependencies": {
     "eslint": "^10.0.3",
     "express": "^5.2.1",
+    "google-auth-library": "^10.6.1",
     "openai": "^6.27.0"
   },
   "devDependencies": {

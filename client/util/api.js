@@ -43,3 +43,26 @@ export const sendMessage = async ({ text }) => {
         };
     }
 };
+
+export const authGoogle = async idToken => {
+    const errorMessage = 'Your account is not authorized for full access. This app is currently a personal project and most features are restricted to approved accounts. You can continue using the app in demo mode. If you’re interested in trying the full version, feel free to reach out through https://alexandercho.github.io/contact'
+    try {
+        const res = await fetch(`${API_BASE}/auth/google`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ idToken })
+        });
+
+        if (!res.ok) {
+            throw new Error();
+        }
+
+        return await res.json();
+    } catch {
+        if (Platform.OS === 'web') {
+            window.alert(errorMessage)
+        } else {
+            Alert.alert(errorMessage)
+        }
+    }
+};

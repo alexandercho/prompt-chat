@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-
+import { authGoogle } from '@/util/api';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -7,8 +7,13 @@ export function AuthProvider({ children }) {
     const [loading] = useState(false);
     const logout = () => setUser(null);
 
+    const login = newUser => {
+        authGoogle(newUser?.idToken)
+        setUser(newUser);
+    }
+
     return (
-        <AuthContext.Provider value={{ user, login: setUser, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,6 +1,9 @@
 const path = require('path');
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 require('dotenv').config({ path: path.resolve(__dirname, envFile) });
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client('347589405886-e0af02uaf6j4p15f0q1aimp7b577mjfo.apps.googleusercontent.com');
 
 const express = require('express');
 const cors = require('cors');
@@ -17,6 +20,10 @@ const apiUrl = process.env.API_URL || 'http://localhost';
 //TODO: Set up a DB Server to store this data
 let chatPrompt = '';
 let chatHistory = [];
+
+const ALLOWED_EMAILS = [
+    'alexanderswcho@gmail.com'
+];
 
 // Middleware
 app.use(cors());
@@ -68,6 +75,46 @@ app.get('/health', (req, res) => {
         uptime: process.uptime(),
         timestamp: new Date().toISOString()
     });
+});
+
+app.post('/auth/google', async (req, res) => {
+    const verifyGoogleUser = async idToken => {
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+
+        const email = payload.email;
+        const emailVerified = payload.email_verified;
+        const givenName = payload.given_name;
+
+        if (!emailVerified) {
+            throw new Error('Email not verified');
+        }
+
+        const isAllowed = ALLOWED_EMAILS.includes(email);
+
+        return {
+            email,
+            allowed: isAllowed,
+            googleId: payload.sub,
+            givenName
+        };
+    }
+
+    const { idToken } = req.body;
+    if (!idToken || typeof idToken !== 'string') {
+        return res.status(400).json({ error: 'Invalid idToken' });
+    }
+    const user = await verifyGoogleUser(idToken);
+
+    if (!user.allowed) {
+        return res.status(403).json({ error: 'Not authorized', ...user });
+    }
+
+    res.status(200).json({ user });
 });
 
 // Start server
