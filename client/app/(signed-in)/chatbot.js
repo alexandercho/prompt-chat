@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import {
     View,
     StyleSheet,
-    Platform,
+    Platform
 } from 'react-native';
 import { GiftedChat, InputToolbar, Bubble, Send, Composer } from 'react-native-gifted-chat';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,8 +29,8 @@ export default function ChatbotScreen() {
                     _id: Date.now(),
                     text: prompt !== '' ? prompt : 'Ask me anything.',
                     createdAt: new Date(),
-                    user: prompt ? HUMAN_USER : BOT_USER,
-                },
+                    user: prompt ? HUMAN_USER : BOT_USER
+                }
             ]);
 
             if (prompt) {
@@ -52,8 +52,8 @@ export default function ChatbotScreen() {
                     _id: Date.now() + 1,
                     text: data.reply,
                     createdAt: new Date(),
-                    user: BOT_USER,
-                },
+                    user: BOT_USER
+                }
             ])
         );
     }, []);
@@ -91,7 +91,7 @@ export default function ChatbotScreen() {
                                                     setTimeout(() => inputRef.current?.focus(), 50);
                                                 }
                                             }
-                                            : undefined,
+                                            : undefined
                                     }}
                                 />
                             )}
@@ -109,7 +109,7 @@ const renderInputToolbar = props => (
         containerStyle={[
             styles.inputToolbar,
             styles.surfaceDark,
-            styles.borderTop,
+            styles.borderTop
         ]}
         primaryStyle={styles.inputPrimary}
     />
@@ -120,7 +120,7 @@ const renderBubble = props => (
         {...props}
         textStyle={{
             right: styles.rightBubbleText,
-            left: styles.leftBubbleText,
+            left: styles.leftBubbleText
         }}
         wrapperStyle={{
             right: [
@@ -133,7 +133,7 @@ const renderBubble = props => (
                 styles.surfaceDark,
                 styles.borderDefault,
                 styles.replyBubble
-            ],
+            ]
         }}
     />
 );
@@ -146,7 +146,7 @@ const renderSend = props => (
             color="#FFFFFF"
             style={[
                 styles.sendIconBase,
-                styles.surfacePrimary,
+                styles.surfacePrimary
             ]}
         />
     </Send>
@@ -155,14 +155,14 @@ const renderSend = props => (
 const styles = StyleSheet.create({
     /* Layout */
     flex1: {
-        flex: 1,
+        flex: 1
     },
     pageContainer: {
         flex: 1,
         alignItems: 'center',
         paddingHorizontal: isWeb ? 24 : 0,
         paddingTop: isWeb ? 32 : 0,
-        paddingBottom: isWeb ? 32 : 0,
+        paddingBottom: isWeb ? 32 : 0
     },
     chatCard: {
         flex: 1,
@@ -172,13 +172,13 @@ const styles = StyleSheet.create({
         borderRadius: isWeb ? 24 : 0,
         overflow: 'hidden',
         borderWidth: isWeb ? 1 : 0,
-        borderColor: '#1E293B',
+        borderColor: '#1E293B'
     },
 
     /* Message List */
     messages: {
         paddingTop: 16,
-        paddingHorizontal: 0,
+        paddingHorizontal: 0
     },
     hideScrollbar: {
         // Firefox
@@ -187,24 +187,24 @@ const styles = StyleSheet.create({
         msOverflowStyle: 'none',
         // Webkit (Chrome, Safari, Edge)
         '::-webkit-scrollbar': {
-            display: 'none',
-        },
+            display: 'none'
+        }
     },
 
     /* Surfaces */
     surfaceDark: {
-        backgroundColor: '#020617',
+        backgroundColor: '#020617'
     },
     surfacePrimary: {
-        backgroundColor: '#6366F1',
+        backgroundColor: '#6366F1'
     },
     borderDefault: {
         borderWidth: 1,
-        borderColor: '#1E293B',
+        borderColor: '#1E293B'
     },
     borderTop: {
         borderTopWidth: 1,
-        borderTopColor: '#1E293B',
+        borderTopColor: '#1E293B'
     },
 
     /* Typography */
@@ -212,17 +212,17 @@ const styles = StyleSheet.create({
         color: '#E5E7EB',
         fontSize: isWeb ? 17 : 16,
         lineHeight: isWeb ? 24 : 22,
-        paddingTop: 10,
+        paddingTop: 10
     },
     rightBubbleText: {
         color: '#FFFFFF',
         fontSize: isWeb ? 16 : 15,
-        lineHeight: 22,
+        lineHeight: 22
     },
     leftBubbleText: {
         color: '#E5E7EB',
         fontSize: isWeb ? 16 : 15,
-        lineHeight: 22,
+        lineHeight: 22
     },
 
     /* Bubbles */
@@ -247,21 +247,21 @@ const styles = StyleSheet.create({
     /* Input Toolbar */
     inputToolbar: {
         paddingHorizontal: isWeb ? 20 : 12,
-        paddingVertical: isWeb ? 14 : 8,
+        paddingVertical: isWeb ? 14 : 8
     },
     inputPrimary: {
-        alignItems: 'center',
+        alignItems: 'center'
     },
 
     /* Send Button */
     sendContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 6,
+        paddingHorizontal: 6
     },
     sendIconBase: {
         borderRadius: 999,
         padding: isWeb ? 14 : 11,
-        overflow: 'hidden',
-    },
+        overflow: 'hidden'
+    }
 });

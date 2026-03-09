@@ -1,4 +1,4 @@
-import { Alert, Platform } from "react-native";
+import { Alert, Platform } from 'react-native';
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL;
 const headers = { 'Content-Type': 'application/json' };
@@ -8,7 +8,7 @@ export const setApiPrompt = async (prompt) => {
         const res = await fetch(`${API_BASE}/set-prompt`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ prompt }),
+            body: JSON.stringify({ prompt })
         });
         if (!res.ok) {
             throw new Error('Failed to set prompt');
@@ -28,7 +28,7 @@ export const sendMessage = async ({ text }) => {
         const res = await fetch(`${API_BASE}/chat`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ text }),
+            body: JSON.stringify({ text })
         });
 
         if (!res.ok) {
@@ -39,7 +39,7 @@ export const sendMessage = async ({ text }) => {
     } catch {
         return {
             reply:
-                'This is a demo project.\n\nTo try the full version, contact me here:\nhttps://alexandercho.github.io/contact',
+                'This is a demo project.\n\nTo try the full version, contact me here:\nhttps://alexandercho.github.io/contact'
         };
     }
 };
