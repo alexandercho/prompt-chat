@@ -20,10 +20,12 @@ const openai = new OpenAI({
 const app = express();
 const port = process.env.PORT || 3000;
 const apiUrl = process.env.API_URL || 'http://localhost';
+const useSecureCookies = process.env.NODE_ENV === 'production';
 
 //TODO: Set up a DB Server to store this data
-let chatPrompt = '';
-let chatHistory = [];
+const chatPrompt = {};
+const chatHistory = {};
+const DEFAULT_CHAT_PROMPT = 'You are a helpful assistant.';
 
 const ALLOWED_EMAILS = [
     'alexanderswcho@gmail.com'
@@ -63,42 +65,47 @@ const requireAuth = (req, res, next) => {
     }
 };
 
+const getUserKey = req => req.user?.sub;
+const getPromptForUser = userKey => chatPrompt[userKey] ?? DEFAULT_CHAT_PROMPT;
+const getHistoryForUser = userKey => chatHistory[userKey] ?? [];
+const buildMessages = userKey => [
+    { role: 'system', content: getPromptForUser(userKey) },
+    ...getHistoryForUser(userKey).map((content, index) => ({
+        role: index % 2 === 0 ? 'user' : 'assistant',
+        content
+    }))
+];
+
 // Routes
 app.post('/set-prompt', requireAuth, (req, res) => {
     const { prompt } = req.body;
     if (!prompt || typeof prompt !== 'string') {
         return res.status(400).json({ error: 'Invalid prompt' });
     }
-    chatPrompt = `You are a helpful assistant. ${prompt}`;
-    chatHistory = [];
-    console.log('Prompt set to:', chatPrompt);
+    const userKey = getUserKey(req);
+
+    chatPrompt[userKey] = `${DEFAULT_CHAT_PROMPT} ${prompt}`;
+    chatHistory[userKey] = [];
+
+    console.log(`Prompt set for ${userKey}:`, chatPrompt[userKey]);
     res.status(200).json({ message: 'Prompt updated' });
 });
 
 app.post('/chat', requireAuth, async (req, res) => {
-    const userText = req.body?.text || '';
-
-    chatHistory.push({ role: 'user', content: userText });
-
-    const messages = [
-        { role: 'system', content: chatPrompt },
-        ...chatHistory
-    ];
+    const userText = typeof req.body?.text === 'string' ? req.body.text : '';
+    const userKey = getUserKey(req);
+    chatHistory[userKey] = [...getHistoryForUser(userKey), userText];
+    const messages = buildMessages(userKey);
 
     try {
         const completion = await openai.chat.completions.create({
             model: 'gpt-4.1-nano',
             messages
         });
-
-        const aiReply = completion.choices[0].message.content;
-
-        // Add AI reply to history
-        chatHistory.push({ role: 'assistant', content: aiReply });
-
+        const aiReply = completion.choices[0].message.content ?? '';
+        chatHistory[userKey] = [...chatHistory[userKey], aiReply];
         res.status(200).json({ reply: aiReply });
-    } catch (error) {
-        console.error(error);
+    } catch {
         res.status(500).json({ error: 'Failed to get reply from OpenAI' });
     }
 });
@@ -163,9 +170,9 @@ app.post('/auth/google', async (req, res) => {
     // Set HTTP-only cookie
     res.cookie('sessionToken', sessionToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'lax',   // prevents CSRF issues
-        maxAge: 60 * 60 * 1000 // 1 day
+        secure: useSecureCookies,
+        sameSite: useSecureCookies ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
@@ -178,4 +185,3 @@ app.post('/auth/google', async (req, res) => {
 app.listen(port, () => {
     console.log(`API listening at ${apiUrl}:${port}`);
 });
-

@@ -10,24 +10,37 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import SignOutButton from '@/components/SignOutButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { loadPromptForUser, savePromptForUser } from '@/util/userStorage';
 
 export default function PromptScreen() {
     const [prompt, setPrompt] = useState('');
     const router = useRouter();
+    const { user } = useAuth();
 
     useEffect(() => {
-        AsyncStorage
-            .getAllKeys()
-            .then(keys => keys.includes('prompt') ? AsyncStorage.getItem('prompt') : '')
-            .then(setPrompt)
-    }, []);
+        let isMounted = true;
 
-    const handleGoToChat = useCallback(() =>
-        AsyncStorage
-            .setItem('prompt', prompt)
-            .then(() => router.push('/chatbot')), [prompt, router]);
+        const loadPrompt = async () => {
+            const storedPrompt = await loadPromptForUser(user);
+
+            if (isMounted) {
+                setPrompt(storedPrompt);
+            }
+        };
+
+        loadPrompt();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [user]);
+
+    const handleGoToChat = useCallback(async () => {
+        await savePromptForUser(user, prompt);
+        router.push('/chatbot');
+    }, [prompt, router, user]);
 
     return (
         <LinearGradient colors={['#020617', '#0F172A']} style={{ flex: 1 }}>

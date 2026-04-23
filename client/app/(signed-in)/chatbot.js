@@ -8,9 +8,10 @@ import { GiftedChat, InputToolbar, Bubble, Send, Composer } from 'react-native-g
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setApiPrompt, sendMessage } from '@/util/api';
 import SignOutButton from '@/components/SignOutButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { loadPromptForUser } from '@/util/userStorage';
 
 const HUMAN_USER = { _id: 1 };
 const BOT_USER = { _id: 2, name: 'Bot' };
@@ -19,20 +20,29 @@ const isWeb = Platform.OS === 'web';
 export default function ChatbotScreen() {
     const [messages, setMessages] = useState([]);
     const inputRef = useRef(null);
+    const { user } = useAuth();
 
     useEffect(() => {
+        if (!user) {
+            return;
+        }
+
+        let isMounted = true;
+
         const init = async () => {
-            const storedPrompt = await AsyncStorage.getItem('prompt');
+            const storedPrompt = await loadPromptForUser(user);
             const prompt = storedPrompt ?? '';
 
-            setMessages([
-                {
-                    _id: Date.now(),
-                    text: prompt !== '' ? prompt : 'Ask me anything.',
-                    createdAt: new Date(),
-                    user: prompt ? HUMAN_USER : BOT_USER
-                }
-            ]);
+            if (isMounted) {
+                setMessages([
+                    {
+                        _id: Date.now(),
+                        text: prompt !== '' ? prompt : 'Ask me anything.',
+                        createdAt: new Date(),
+                        user: prompt ? HUMAN_USER : BOT_USER
+                    }
+                ]);
+            }
 
             if (prompt) {
                 await setApiPrompt(prompt);
@@ -40,7 +50,11 @@ export default function ChatbotScreen() {
         };
 
         init();
-    }, []);
+
+        return () => {
+            isMounted = false;
+        };
+    }, [user]);
 
     const onSend = useCallback(async (newMessages = []) => {
         setMessages(prev => GiftedChat.append(prev, newMessages));
