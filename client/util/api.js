@@ -1,18 +1,13 @@
 import { Alert, Platform } from 'react-native';
-import { getItemAsync } from 'expo-secure-store';
+import { getStoredSessionToken } from '@/util/sessionToken';
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL;
 const headers = { 'Content-Type': 'application/json' };
 const credentials = 'include';
 
-const getSessionToken = async () => await getItemAsync('sessionToken');
-
 export const setApiPrompt = async (prompt) => {
     try {
-        let token;
-        if (Platform.OS !== 'web') {
-            token = await getSessionToken();
-        }
+        const token = await getStoredSessionToken();
 
         const res = await fetch(`${API_BASE}/set-prompt`, {
             method: 'POST',
@@ -38,10 +33,7 @@ export const setApiPrompt = async (prompt) => {
 
 export const sendMessage = async ({ text }) => {
     try {
-        let token;
-        if (Platform.OS !== 'web') {
-            token = await getSessionToken();
-        }
+        const token = await getStoredSessionToken();
 
         const res = await fetch(`${API_BASE}/chat`, {
             method: 'POST',
